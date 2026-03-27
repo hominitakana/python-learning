@@ -1,15 +1,17 @@
 import psycopg2
 import pandas
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 ## PostgreSQLに接続
 conn = psycopg2.connect(
-    host="localhost",
-    database="company_db",
-    user="postgres",
-    password=""
+    host=os.getenv('DB_HOST'),
+    database=os.getenv('DB_NAME'),
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD')
 )
-
 #cur（カーソル）はその接続を使って実際にSQLを実行する窓口
 cur = conn.cursor()
 
@@ -28,6 +30,8 @@ conn.close()
 
 # クエリ結果をDataFrameに変換
 df = pandas.DataFrame(rows, columns=columns)
+
+print(df)
 
 
 
