@@ -16,7 +16,12 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 # SQLを実行
-cur.execute("SELECT name, position, department_id FROM employees;")
+cur.execute("""
+            SELECT 
+                e.id, e.name , e.position, d.id as department_id, d.name as department
+            FROM employees e
+            join departments d on e.department_id = d.id;
+            """)
 
 #結果を全件取得
 rows = cur.fetchall()
@@ -31,7 +36,18 @@ conn.close()
 # クエリ結果をDataFrameに変換
 df = pandas.DataFrame(rows, columns=columns)
 
-print(df)
+#部署ごとに社員数を取得
+department_employee_count = df.groupby('department')['id'].count().reset_index()
+department_employee_count.columns = ['department', '社員数']
+
+# 社員数が最大のインデックスを取得
+max_employee_department_idx = department_employee_count['社員数'].idxmax()
+# 上記で取得したindexの行を取得
+max_employee_department = department_employee_count.loc[max_employee_department_idx]
+
+print(department_employee_count)
+print(max_employee_department)
+
 
 
 
