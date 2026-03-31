@@ -1,8 +1,12 @@
 from fastapi import FastAPI
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 app = FastAPI()
+
+class ShopInfo(BaseModel):
+    name: str
+    location: str
 
 
 #リクエストボディ このような形式のデータが入ってくる
@@ -13,11 +17,21 @@ class Item(BaseModel):
     tax: Optional[float] = None
 
 
+class Data(BaseModel):
+    shop_info: Optional[ShopInfo]
+    items: List[Item]
+
+
+
 # postはデータ構造をクラスで作成してから作成する。
 @app.post("/item/")
 async def create_item(item: Item):
     return {"message": f"{item.name}は税込み{int(item.price * item.tax)}円です"}
 
+@app.post("/")
+async def post_root(data: Data):
+    return data
+
 @app.get("/")
-async def read_root():
+async def get_root():
     return {"message" : "You can Access!"}
